@@ -11,7 +11,8 @@ const PodcastViewer: React.FC = () => {
 
     const fetchPodcast = async (url: string) => {
         try {
-            const response = await axios.get(url, { responseType: 'text' });
+            const newUrl = 'https://corsproxy.io/?' + encodeURIComponent(url); 
+            const response = await axios.get(newUrl, { responseType: 'text' });
             const parsedResult = await xml2js.parseStringPromise(response.data, {
                 trim: true,
                 explicitArray: false,
