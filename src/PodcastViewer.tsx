@@ -1,8 +1,25 @@
 import React, { useState } from 'react';
-import axios from 'axios';
+import axios, { AxiosRequestConfig, AxiosResponse } from 'axios';
 import xml2js from 'xml2js';
 
 import { Podcast, Episode } from './types/podcast';
+
+async function fetchWithProxy(url: string): Promise<AxiosResponse<any>> {
+    const proxyUrl = `https://proxy.cors.sh/${url}`;
+  
+    const config: AxiosRequestConfig = {
+      headers: {
+        'x-cors-api-key': process.env.REACT_APP_CORS_API_KEY,
+      },
+    };
+  
+    try {
+      const response = await axios(proxyUrl, config);
+      return response;
+    } catch (error) {
+      throw error;
+    }
+  }
 
 const PodcastViewer: React.FC = () => {
     const [rssUrl, setRssUrl] = useState<string>('');
@@ -11,8 +28,7 @@ const PodcastViewer: React.FC = () => {
 
     const fetchPodcast = async (url: string) => {
         try {
-            const newUrl = 'https://corsproxy.io/?' + encodeURIComponent(url); 
-            const response = await axios.get(newUrl, { responseType: 'text' });
+            const response = await fetchWithProxy(url);
             const parsedResult = await xml2js.parseStringPromise(response.data, {
                 trim: true,
                 explicitArray: false,
